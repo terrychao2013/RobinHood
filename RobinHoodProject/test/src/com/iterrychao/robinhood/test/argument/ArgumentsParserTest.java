@@ -5,24 +5,30 @@ import com.iterrychao.robinhood.argument.ArgumentsParser;
 import junit.framework.TestCase;
 
 public class ArgumentsParserTest extends TestCase {
-	private enum TestArguments {
-		NULL {
+	private interface TestArguments {
+		abstract String[] getArguments();
+		abstract boolean expectedResult();
+	}
+	
+	private void test(TestArguments arguments) {
+		ArgumentsParser parser = new ArgumentsParser();
+		boolean parserResult = parser.parseArguments(arguments.getArguments());
+		assertEquals(arguments.expectedResult(), parserResult);
+	}
+	
+	public void testParseCorrect() {
+		test(new TestArguments() {
 
 			@Override
-			String[] getArguments() {
-				return null;
+			public String[] getArguments() {
+				return new String[]{
+						"parse", "--resource=~/", "--target=~/result.xls"
+				};
 			}
-			
-		},
-		;
-		abstract String[] getArguments();
-	};
-	
-	public void testParserArguments() {
-		for (TestArguments test : TestArguments.values()) {
-			ArgumentsParser parser = new ArgumentsParser();
-			boolean parserResult = parser.parseArguments(test.getArguments());
-			assertFalse(parserResult);
-		}
+
+			@Override
+			public boolean expectedResult() {
+				return true;
+			}});
 	}
 }
